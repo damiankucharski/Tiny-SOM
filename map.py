@@ -1,5 +1,6 @@
 import numpy as np
 import copy 
+import tqdm
 
 class Map:
     """
@@ -84,7 +85,7 @@ class Map:
         if not self._pilambda:
             self._pilambda = epochs / np.log(self.sigma)
         self.cache = []
-        for epoch in range(epochs):
+        for epoch in tqdm.tqdm(range(epochs)):
             self.cache.append(copy.deepcopy(self.weights))
             sample = X[np.random.randint(X.shape[0]),...]
             assert len(sample) == self.input_shape
