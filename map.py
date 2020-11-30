@@ -1,4 +1,5 @@
 import numpy as np
+import copy 
 
 class Map:
     """
@@ -29,7 +30,7 @@ class Map:
         self.shape = shape
         self.input_shape = input_shape
 
-        self.weights = np.random.randn(*shape, input_shape)
+        self.weights = np.random.random((*shape, input_shape))
         self.indices_matrix = np.indices(self.shape)
         self.indices_matrix = self.indices_matrix.reshape(self.indices_matrix.shape[0],-1).T
 
@@ -51,9 +52,9 @@ class Map:
         nbh_size = self.sigma * np.exp(-epoch/self._pilambda)
         distances = self.calc_distances(self.indices_matrix, point)
         distances = distances.reshape(self.shape)
-        distances *= distances <= nbh_size
-        nbh =  np.exp(-np.square(distances)/2/np.square(nbh_size))
-    
+        nbh =  np.exp(-distances/2/np.square(nbh_size))
+        
+        nbh *= nbh <= nbh_size
         assert nbh.shape == self.shape
     
         return nbh
@@ -84,7 +85,7 @@ class Map:
             self._pilambda = epochs / np.log(self.sigma)
         self.cache = []
         for epoch in range(epochs):
-            self.cache.append(self.weights)
+            self.cache.append(copy.deepcopy(self.weights))
             sample = X[np.random.randint(X.shape[0]),...]
             assert len(sample) == self.input_shape
             distances = self.calc_distances(self.weights, sample)
